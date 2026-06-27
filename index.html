@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SLOMO CLUB</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Inter', sans-serif;
+  background:#000;
+  color:white;
+  overflow-x:hidden;
+}
+
+/* SPACE THEMED BACKGROUND WITH FLOATING STARS */
+.sky{
+  position:fixed;
+  inset:0;
+  background: radial-gradient(circle at bottom, #09091e, #000000);
+  z-index:-2;
+  overflow: hidden;
+}
+
+.star{
+  position:absolute;
+  background:white;
+  border-radius:50%;
+  opacity:0.8;
+  animation:floatStar linear infinite;
+  box-shadow: 0 0 4px #fff;
+}
+
+/* Multiple stars at different starting positions and speeds */
+.star:nth-child(1) { width: 2px; height: 2px; left: 10%; top: -5%; animation-duration: 8s; }
+.star:nth-child(2) { width: 3px; height: 3px; left: 30%; top: -10%; animation-duration: 12s; animation-delay: 2s; }
+.star:nth-child(3) { width: 2px; height: 2px; left: 55%; top: -5%; animation-duration: 15s; }
+.star:nth-child(4) { width: 4px; height: 4px; left: 75%; top: -15%; animation-duration: 9s; animation-delay: 4s; }
+.star:nth-child(5) { width: 2px; height: 2px; left: 90%; top: -5%; animation-duration: 14s; }
+.star:nth-child(6) { width: 3px; height: 3px; left: 45%; top: -8%; animation-duration: 11s; animation-delay: 1s; }
+
+@keyframes floatStar{
+  from{transform:translateY(-20px);}
+  to{transform:translateY(105vh);}
+}
+
+nav{
+  padding:20px;
+  display:flex;
+  justify-content:space-between;
+  background:rgba(0,0,0,0.6);
+  border-bottom:1px solid #222;
+}
+
+.logo{
+  font-weight:900;
+  letter-spacing:5px;
+}
+
+.hero{
+  padding:40px;
+}
+
+.hero h1{
+  font-size:55px;
+  background:linear-gradient(90deg,#fff,#777);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:25px;
+  padding:20px 40px;
+}
+
+.card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid #222;
+  padding:25px;
+  border-radius:14px;
+  backdrop-filter: blur(5px);
+}
+
+/* BIGGER WHITE BUY BUTTONS WITH CLICK/HOLD SCALE EFFECT */
+button.add{
+  width:100%;
+  padding:16px 20px;
+  border:none;
+  cursor:pointer;
+  font-weight:900;
+  font-size: 15px;
+  letter-spacing: 1px;
+  border-radius:12px;
+  background: #ffffff;
+  color: #000000;
+  transition: transform 0.1s ease-out, background 0.2s;
+  user-select: none; /* Prevents text selection during long hold */
+}
+
+button.add:hover {
+  background: #f0f0f0;
+}
+
+/* BECOMES BIGGER ON CLICK OR HOLD */
+button.add:active {
+  transform: scale(1.1) !important;
+}
+
+button.checkout{
+  width:100%;
+  padding:12px;
+  border:none;
+  cursor:pointer;
+  font-weight:800;
+  border-radius:10px;
+  background:linear-gradient(90deg,#00ff99,#00c2ff);
+  margin-top:10px;
+}
+
+.cart{
+  padding:30px 40px;
+  background:#000;
+  border-top:1px solid #222;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  align-items: center;
+  padding:10px 15px;
+  margin:8px 0;
+  background:rgba(255,255,255,0.05);
+  border-radius:10px;
+}
+
+/* REMOVE BUTTON STYLING */
+.remove-btn {
+  background: none;
+  border: none;
+  color: #ff4a4a;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 5px 10px;
+  width: auto;
+  border-radius: 5px;
+}
+
+.remove-btn:hover {
+  background: rgba(255, 74, 74, 0.1);
+}
+
+.bubble{
+  position:fixed;
+  border-radius:50%;
+  background:rgba(255,255,255,0.5);
+  animation:pop 0.8s ease-out forwards;
+  pointer-events:none;
+}
+
+@keyframes pop{
+  0%{transform:scale(1);opacity:1}
+  100%{transform:scale(3);opacity:0}
+}
+
+/* VIEW SYSTEM */
+.view{display:none;}
+.view.active{display:block;text-align:center;padding:40px;}
+
+</style>
+</head>
+
+<body>
+
+<div class="sky">
+  <div class="star"></div>
+  <div class="star"></div>
+  <div class="star"></div>
+  <div class="star"></div>
+  <div class="star"></div>
+  <div class="star"></div>
+</div>
+
+<nav>
+  <div class="logo">SLOMO CLUB</div>
+</nav>
+
+<div id="main" class="view active">
+
+<div class="hero">
+  <h1>SLOMO CLUB</h1>
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>DJ AURA</h3>
+    <button class="add" onclick="djBuy(event,'DJ AURA',10)">BUY $10</button>
+  </div>
+
+  <div class="card">
+    <h3>DJ KAI</h3>
+    <button class="add" onclick="djBuy(event,'DJ KAI',12)">BUY $12</button>
+  </div>
+
+  <div class="card">
+    <h3>VIP PASS</h3>
+    <button class="add" onclick="djBuy(event,'VIP PASS',25)">BUY $25</button>
+  </div>
+
+</div>
+
+<div class="cart">
+  <h2>Cart</h2>
+  <div id="cart"></div>
+  <h3>Total: $<span id="total">0</span></h3>
+
+  <button class="checkout" onclick="buyNow()">BUY NOW 💸</button>
+</div>
+
+</div>
+
+<div id="payment" class="view">
+  <h2>💳 PAYMENT QR</h2>
+  <div id="qrPay"></div>
+  <button onclick="paid()">I PAID</button>
+</div>
+
+<div id="waiting" class="view">
+  <h2>⏳ WAITING FOR APPROVAL</h2>
+  <p id="oid"></p>
+</div>
+
+<div id="ticket" class="view">
+  <h2>🎟 ENTRY TICKET</h2>
+  <p id="info"></p>
+  <p id="receipt"></p>
+  <div id="qr"></div>
+</div>
+
+<script>
+let cart=[];
+let orderId=0;
+let amount=0;
+
+function show(id){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function djBuy(e,name,price){
+  cart.push({name,price});
+  render();
+}
+
+/* NEW FUNCTION: REMOVE ITEM FROM CART */
+function removeCartItem(index){
+  cart.splice(index, 1);
+  render();
+}
+
+function render(){
+  let box=document.getElementById("cart");
+  box.innerHTML="";
+  let total=0;
+
+  cart.forEach((c, index)=>{
+    total+=c.price;
+    box.innerHTML+=`
+      <div class="item">
+        <span>${c.name} - $${c.price}</span>
+        <button class="remove-btn" onclick="removeCartItem(${index})">✕</button>
+      </div>`;
+  });
+
+  document.getElementById("total").innerText=total;
+}
+
+/* STEP 1: BUY NOW */
+function buyNow(){
+  if(cart.length===0) return alert("cart empty");
+
+  amount = cart.reduce((a,b)=>a+b.price,0);
+  orderId = Math.floor(Math.random()*999999);
+
+  let qr = `PAY|ORDER:${orderId}|AMOUNT:${amount}`;
+
+  document.getElementById("qrPay").innerHTML="";
+  new QRCode(document.getElementById("qrPay"),{
+    text:qr,
+    width:180,
+    height:180
+  });
+
+  show("payment");
+}
+
+/* STEP 2: PAID */
+function paid(){
+  localStorage.setItem("order_"+orderId, JSON.stringify({
+    id:orderId,
+    items:cart,
+    amount,
+    status:"pending"
+  }));
+
+  document.getElementById("oid").innerText="ORDER ID: "+orderId;
+  show("waiting");
+
+  checkApproval();
+}
+
+/* STEP 3: WAIT APPROVAL */
+function checkApproval(){
+  let t=setInterval(()=>{
+    let data=JSON.parse(localStorage.getItem("order_"+orderId));
+
+    if(data && data.status==="approved"){
+      clearInterval(t);
+      showTicket(data);
+    }
+  },1500);
+}
+
+/* STEP 4: TICKET */
+function showTicket(order){
+
+  document.getElementById("info").innerText =
+    "ITEMS: " + order.items.map(x=>x.name).join(", ");
+
+  let code="SLOMO-"+Math.floor(Math.random()*999999);
+
+  document.getElementById("receipt").innerText =
+    "ENTRY CODE: " + code;
+
+  document.getElementById("qr").innerHTML="";
+
+  new QRCode(document.getElementById("qr"),{
+    text:code,
+    width:160,
+    height:160
+  });
+
+  show("ticket");
+
+  // save "cookie" style history
+  localStorage.setItem("last_ticket", JSON.stringify({
+    orderId:order.id,
+    code
+  }));
+}
+</script>
+
+</body>
+</html>
