@@ -102,14 +102,13 @@ button.add{
   background: #ffffff;
   color: #000000;
   transition: transform 0.1s ease-out, background 0.2s;
-  user-select: none; /* Prevents text selection during long hold */
+  user-select: none;
 }
 
 button.add:hover {
   background: #f0f0f0;
 }
 
-/* BECOMES BIGGER ON CLICK OR HOLD */
 button.add:active {
   transform: scale(1.1) !important;
 }
@@ -141,7 +140,6 @@ button.checkout{
   border-radius:10px;
 }
 
-/* REMOVE BUTTON STYLING */
 .remove-btn {
   background: none;
   border: none;
@@ -261,7 +259,6 @@ function djBuy(e,name,price){
   render();
 }
 
-/* NEW FUNCTION: REMOVE ITEM FROM CART */
 function removeCartItem(index){
   cart.splice(index, 1);
   render();
@@ -284,7 +281,6 @@ function render(){
   document.getElementById("total").innerText=total;
 }
 
-/* STEP 1: BUY NOW */
 function buyNow(){
   if(cart.length===0) return alert("cart empty");
 
@@ -303,44 +299,31 @@ function buyNow(){
   show("payment");
 }
 
-/* STEP 2: PAID */
+/* STEP 2: MODIFIED FOR SEPARATE WEBSITES */
 function paid(){
-  localStorage.setItem("order_"+orderId, JSON.stringify({
-    id:orderId,
-    items:cart,
-    amount,
-    status:"pending"
-  }));
+  const orderData = {
+    id: orderId,
+    items: cart,
+    amount: amount,
+    time: new Date().toLocaleTimeString()
+  };
 
-  document.getElementById("oid").innerText="ORDER ID: "+orderId;
-  show("waiting");
-
-  checkApproval();
+  // Turn data into string for the URL link
+  let encodedData = encodeURIComponent(JSON.stringify(orderData));
+  
+  // 🛑 REPLACE 'your-admin-repo' WITH THE ACTUAL NAME OF YOUR ADMIN SITE REPOSITORY
+  let adminSiteUrl = `https://nathanmakes.github.io/your-admin-repo/?order=${encodedData}`;
+  
+  // Send the page to your admin dashboard URL automatically
+  window.location.href = adminSiteUrl;
 }
 
-/* STEP 3: WAIT APPROVAL */
-function checkApproval(){
-  let t=setInterval(()=>{
-    let data=JSON.parse(localStorage.getItem("order_"+orderId));
-
-    if(data && data.status==="approved"){
-      clearInterval(t);
-      showTicket(data);
-    }
-  },1500);
-}
-
-/* STEP 4: TICKET */
 function showTicket(order){
-
   document.getElementById("info").innerText =
     "ITEMS: " + order.items.map(x=>x.name).join(", ");
 
   let code="SLOMO-"+Math.floor(Math.random()*999999);
-
-  document.getElementById("receipt").innerText =
-    "ENTRY CODE: " + code;
-
+  document.getElementById("receipt").innerText = "ENTRY CODE: " + code;
   document.getElementById("qr").innerHTML="";
 
   new QRCode(document.getElementById("qr"),{
@@ -351,7 +334,6 @@ function showTicket(order){
 
   show("ticket");
 
-  // save "cookie" style history
   localStorage.setItem("last_ticket", JSON.stringify({
     orderId:order.id,
     code
