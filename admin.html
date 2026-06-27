@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ADMIN DASHBOARD</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Inter', sans-serif;
+  background: #050510;
+  color: white;
+  padding: 40px;
+  margin: 0;
+}
+
+h1 {
+  font-weight: 800;
+  letter-spacing: 2px;
+  font-size: 32px;
+  margin-bottom: 30px;
+  background: linear-gradient(90deg, #fff, #777);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+#orders {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #222;
+  padding: 25px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card h3 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.card p {
+  margin: 6px 0;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.card .amount {
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.btn-container {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  transition: transform 0.1s ease, filter 0.2s;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+.approve {
+  background: linear-gradient(90deg, #00ff99, #00e575);
+  color: #000;
+}
+
+.reject {
+  background: #ff4a4a;
+  color: white;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+/* Empty State Styling */
+.no-orders {
+  color: #555;
+  font-style: italic;
+  font-size: 16px;
+  grid-column: 1 / -1;
+  padding: 40px 0;
+}
+</style>
+</head>
+<body>
+
+<h1>ADMIN DASHBOARD</h1>
+<div id="orders"></div>
+
+<script>
+function loadOrders(){
+  let box = document.getElementById("orders");
+  box.innerHTML = "";
+  let hasPending = false;
+
+  for(let i=0; i<localStorage.length; i++){
+    let key = localStorage.key(i);
+
+    if(key.startsWith("order_")){
+      let order = JSON.parse(localStorage.getItem(key));
+
+      // ONLY show orders if they are still "pending"
+      if (order.status === "pending") {
+        hasPending = true;
+        box.innerHTML += `
+          <div class="card">
+            <div>
+              <h3>Order #${order.id}</h3>
+              <p><strong>Items:</strong> ${order.items.map(x=>x.name).join(", ")}</p>
+              <p class="amount">Total: $${order.amount}</p>
+            </div>
+
+            <div class="btn-container">
+              <button class="approve" onclick="approve('${key}')">APPROVE</button>
+              <button class="reject" onclick="reject('${key}')">REJECT</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+  }
+
+  if (!hasPending) {
+    box.innerHTML = `<div class="no-orders">No pending requests at the moment.</div>`;
+  }
+}
+
+function approve(key){
+  let order = JSON.parse(localStorage.getItem(key));
+  order.status = "approved";
+  localStorage.setItem(key, JSON.stringify(order));
+  loadOrders(); // Re-render updates immediately, making the card disappear
+}
+
+function reject(key){
+  let order = JSON.parse(localStorage.getItem(key));
+  order.status = "rejected";
+  localStorage.setItem(key, JSON.stringify(order));
+  loadOrders(); // Re-render updates immediately, making the card disappear
+}
+
+// Initial pull on page load
+loadOrders();
+
+// Optional: Auto-refresh dashboard every 3 seconds to catch new incoming requests
+setInterval(loadOrders, 3000);
+</script>
+
+</body>
+</html>
